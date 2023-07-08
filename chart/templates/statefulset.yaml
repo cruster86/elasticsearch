@@ -233,6 +233,7 @@ spec:
 {{ toYaml .Values.securityContext | indent 10 }}
         image: "{{ .Values.image }}:{{ .Values.imageTag }}"
         imagePullPolicy: "{{ .Values.imagePullPolicy }}"
+        {{- if .Values.readinessProbe }}
         readinessProbe:
           exec:
             command:
@@ -298,6 +299,7 @@ spec:
                   fi
                 fi
 {{ toYaml .Values.readinessProbe | indent 10 }}
+        {{- end }}
         ports:
         - name: http
           containerPort: {{ .Values.httpPort }}
