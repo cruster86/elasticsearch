@@ -1,0 +1,19 @@
+FROM node:18.18.1-alpine3.18
+LABEL maintainer="ferronrsmith@gmail.com"
+ARG ES_DUMP_VER
+ENV ES_DUMP_VER=${ES_DUMP_VER:-latest}
+ENV NODE_ENV production
+
+ENV DI_VERSION 1.2.5
+RUN apk update && apk add --no-cache wget &&\
+    wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v${DI_VERSION}/dumb-init_${DI_VERSION}_x86_64 &&\
+    apk del wget
+RUN chmod +x /usr/local/bin/dumb-init
+
+RUN npm install elasticdump@${ES_DUMP_VER} -g
+
+COPY docker-entrypoint.sh /usr/local/bin/
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+
+CMD ["/usr/local/bin/dumb-init", "elasticdump"]
