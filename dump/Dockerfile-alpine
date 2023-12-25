@@ -1,4 +1,4 @@
-FROM node:18.18.1-alpine3.18
+FROM node:18.19-alpine3.19
 LABEL maintainer="ferronrsmith@gmail.com"
 ARG ES_DUMP_VER
 ENV ES_DUMP_VER=${ES_DUMP_VER:-latest}
