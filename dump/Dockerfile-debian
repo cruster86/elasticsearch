@@ -1,0 +1,26 @@
+FROM node:14-buster-slim
+LABEL maintainer="ferronrsmith@gmail.com"
+ARG ES_DUMP_VER
+ARG TARGETPLATFORM
+ENV ES_DUMP_VER=${ES_DUMP_VER:-latest}
+ENV NODE_ENV production
+
+RUN apt -y update && apt upgrade -y &&\
+    apt -y install wget &&  \
+    if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCHITECTURE=amd64; elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCHITECTURE=arm64; else ARCHITECTURE=amd64; fi && \
+    wget "https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_${ARCHITECTURE}.deb" && \
+    dpkg -i dumb-init_*.deb &&\
+    apt autoremove -y &&\
+    apt autoclean -y &&\
+    apt clean -y &&\
+    rm -rf /var/lib/apt/lists/* &&\
+    rm -rf /usr/share/doc/ &&\
+    rm -rf /usr/share/man/
+
+RUN npm install elasticdump@${ES_DUMP_VER} -g
+
+COPY docker-entrypoint.sh /usr/local/bin/
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+
+CMD ["/usr/bin/dumb-init", "elasticdump"]
